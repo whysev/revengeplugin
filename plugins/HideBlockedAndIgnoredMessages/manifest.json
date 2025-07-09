@@ -1,6 +1,6 @@
 {
     "name": "HideBlockedAndIgnoredMessages",
-    "description": "A plugin that removes the `X blocked or ignored message/s` prompt from chat.",
+    "description": "A plugin that removes the `X blocked or ignored message/s` prompt and replies to the blocked or ignored messages from chat.",
     "authors": [
         {
             "name": "Zykrah",
