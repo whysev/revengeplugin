@@ -8,7 +8,7 @@ import Settings from "./settings";
 const RowManager = findByName("RowManager");
 const { isBlocked, isIgnored } = findByProps("isBlocked", "isIgnored");
 
-const pluginName = "HideBlockedAndIgnoredMessagesWithReplies";
+const pluginName = "HideBlockedAndIgnoredMessages";
 
 function constructMessage(message, channel) {
     let msg = {
