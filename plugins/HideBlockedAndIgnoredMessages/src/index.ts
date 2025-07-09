@@ -6,7 +6,7 @@ import { storage } from "@vendetta/plugin";
 import Settings from "./settings";
 
 const RowManager = findByName("RowManager");
-const RelationshipStore = findByProps("getRelationships", "isBlocked", "isIgnored");
+const { isBlocked, isIgnored } = findByProps("isBlocked", "isIgnored");
 
 const pluginName = "HideBlockedAndIgnoredMessages";
 
@@ -46,8 +46,8 @@ function constructMessage(message, channel) {
 // Check
 const isFilteredUser = (id) => {
     if (!id) return false;
-    if (storage.blocked && RelationshipStore.isBlocked(id)) return true;
-    if (storage.ignored && RelationshipStore.isIgnored(id)) return true;
+    if (storage.blocked && isBlocked(id)) return true;
+    if (storage.ignored && isIgnored(id)) return true;
     return false;
 };
 
