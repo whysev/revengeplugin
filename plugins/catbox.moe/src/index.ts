@@ -18,9 +18,9 @@ function ensureDefaultSettings() {
   if (typeof storage.showDialogAfterUpload !== "boolean") storage.showDialogAfterUpload = true;
 }
 
-function getRandomString(length = 6) {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+function getRandomString(length = 6): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -29,8 +29,6 @@ function getRandomString(length = 6) {
 
 function createWarmupFile() {
   const randomName = `warmup_${getRandomString()}.bin`;
-
-  // Random 0.000001 to ~0.999999 MB
   const sizeInBytes = Math.floor(Math.random() * 1_048_576) + 1;
 
   return {
@@ -52,32 +50,14 @@ function warmUpUploader() {
   }, 0);
 }
 
-function suppressFileEmptyDialog() {
-  const originalShow = Dialog.show;
-  Dialog.show = function (props) {
-    const title = props?.title?.toLowerCase?.() || "";
-    const body = props?.body?.toLowerCase?.() || "";
-    if (title.includes("file cannot be empty") || body.includes("file cannot be empty")) {
-      console.log("[CatboxUploader] Suppressed Discord's default dialog");
-      return;
-    }
-    return originalShow.call(this, props);
-  };
-  unpatches.push(() => {
-    Dialog.show = originalShow;
-  });
-}
-
 export default {
   onLoad() {
     ensureDefaultSettings();
-    suppressFileEmptyDialog();
 
     const originalUpload = CloudUpload.prototype.reactNativeCompressAndExtractData;
 
     CloudUpload.prototype.reactNativeCompressAndExtractData = async function () {
       const file = this;
-
       const alwaysUpload = !!storage.alwaysUpload;
       const showDialog = !!storage.showDialogAfterUpload;
 
@@ -91,6 +71,13 @@ export default {
 
       try {
         const link = await uploadToCatbox(file);
+
+        // Cancel native upload
+        if (typeof this.setStatus === "function") {
+          this.setStatus("CANCELED");
+          console.log("[CatboxUploader] Marked original upload as canceled.");
+        }
+
         if (link) {
           if (showDialog) {
             Dialog.show({
@@ -110,7 +97,7 @@ export default {
             const channelId = ChannelStore?.getChannelId?.();
             if (channelId && MessageSender?.sendMessage) {
               await MessageSender.sendMessage(channelId, { content: link });
-              showToast("Sent Catbox link.");
+              showToast("Sent link to chat.");
             } else {
               showToast("Upload succeeded, but could not send link.");
             }
@@ -123,11 +110,7 @@ export default {
         showToast("Upload error occurred.");
       }
 
-      return {
-        compressed: true,
-        size: 1337,
-        uri: "catbox://upload",
-      };
+      return null;
     };
 
     unpatches.push(() => {
