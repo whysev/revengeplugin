@@ -4,7 +4,7 @@ import { showToast } from "@vendetta/ui/toasts";
 import { findByProps } from "@vendetta/metro";
 import { storage } from "@vendetta/plugin";
 
-const ChannelStore = findByProps("getChannel", "getDMFromUserId");
+const ChannelStore = findByProps("getChannel");
 
 export const loadCommands = () => {
   registerCommand({
@@ -30,7 +30,7 @@ export const loadCommands = () => {
 
       if (isAdding) {
         storage.silentList.push(userId);
-        showToast("Added to silent list.", getAssetIDByName("success-header"));
+        showToast("Added to silent list.", getAssetIDByName("console_detect_success"));
       } else {
         storage.silentList.splice(idx, 1);
         showToast("Removed from silent list.", getAssetIDByName("ic_trash_24px"));

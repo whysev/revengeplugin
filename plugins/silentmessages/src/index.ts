@@ -5,7 +5,7 @@ import Settings from "./settings";
 import { loadCommands, unloadCommands } from "./commands";
 
 const MessageEvents = findByProps("sendMessage");
-const ChannelStore = findByProps("getChannel", "getDMFromUserId");
+const ChannelStore = findByProps("getChannel");
 
 storage.alwaysSilent ??= false;
 storage.silentList ??= [];
