@@ -12,7 +12,7 @@ export default () => {
     <RN.ScrollView style={{ flex: 1 }}>
       <FormInput
         title="Catbox Userhash"
-        placeholder="Required for uploads to user account"
+        placeholder="Required for uploads to catbox account"
         value={storage.userhash || ""}
         onChange={(v: string) => (storage.userhash = v.trim())}
         helpText={
@@ -24,7 +24,7 @@ export default () => {
       <FormDivider />
       <FormSwitchRow
         label="Always upload to Catbox"
-        subLabel="Ignore 10MB size limit"
+        subLabel="Ignore the 10MBs limit of triggering catbox"
         value={!!storage.alwaysUpload}
         onValueChange={(v: boolean) => {
           storage.alwaysUpload = v;
@@ -38,6 +38,35 @@ export default () => {
         onValueChange={(v: boolean) => {
           storage.showDialogAfterUpload = v;
         }}
+      />
+      <FormDivider />
+      <FormSwitchRow
+        label="Use Litterbox instead of Catbox"
+        subLabel="Temporary uploads with duration on litterbox.moe"
+        value={!!storage.useLitterbox}
+        onValueChange={(v: boolean) => {
+          storage.useLitterbox = v;
+        }}
+      />
+      <FormDivider />
+      <FormInput
+        title="Default Litterbox Duration (hours)"
+        placeholder="1"
+        keyboardType="numeric"
+        value={storage.defaultDuration || "1"}
+        onChange={(v: string) => {
+          if (/^\d*$/.test(v)) storage.defaultDuration = v;
+        }}
+      />
+      <FormDivider />
+      <FormInput
+        title="Litterbox Upload Command [REQUIRES RESTART]"
+        placeholder="/litterbox"
+        value={storage.commandName || "/litterbox"}
+        onChange={(v: string) => {
+          storage.commandName = v.startsWith("/") ? v : `/${v}`;
+        }}
+        helpText="Set Litterbox duration for the next upload, e.g. /litterbox 24 (yes you can leave it empty, idc)"
       />
     </RN.ScrollView>
   );

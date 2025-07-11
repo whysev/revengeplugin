@@ -9,7 +9,6 @@ const FileManager =
 
 export async function uploadToCatbox(media: any): Promise<string | null> {
   try {
-    console.log("[CatboxUploader] Media object:", media);
 
     const fileUri =
       media?.item?.originalUri ||
