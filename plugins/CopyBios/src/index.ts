@@ -1,8 +1,10 @@
-import { findByNameAll } from "@vendetta/metro";
+import { findByName } from "@vendetta/metro";
 import { ReactNative } from "@vendetta/metro/common";
 import { after, unpatchAll } from "@vendetta/patcher";
 
-function makeTextSelectable(node: any): void {
+const BioText = findByName("BioText", false);
+
+function textSelection(node: any): void {
   if (!node || typeof node !== "object") return;
 
   if (node.type === ReactNative.Text) {
@@ -16,28 +18,24 @@ function makeTextSelectable(node: any): void {
   const children = node.props?.children;
   if (Array.isArray(children)) {
     for (const child of children) {
-      makeTextSelectable(child);
+      textSelection(child);
     }
   } else if (typeof children === "object") {
-    makeTextSelectable(children);
+    textSelection(children);
   }
 }
 
-const BioTextModules = findByNameAll("BioText", false);
+after("default", BioText, ([props], res) => {
+  if (!res?.props) return res;
 
-for (const BioText of BioTextModules) {
-  after("default", BioText, ([props], res) => {
-    if (!res?.props) return res;
+  res.props.selectable = true;
 
-    res.props.selectable = true;
+  if (typeof res.props.onPress !== "function") {
+    res.props.onPress = () => {};
+  }
 
-    if (typeof res.props.onPress !== "function") {
-      res.props.onPress = () => {};
-    }
-
-    makeTextSelectable(res);
-    return res;
-  });
-}
+  textSelection(res);
+  return res;
+});
 
 export const onUnload = () => unpatchAll();
