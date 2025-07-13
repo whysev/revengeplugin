@@ -78,7 +78,7 @@ async function sendRequest(activity: Activity | null): Promise<Activity | null> 
   }
 
   if (activity.buttons?.length) {
-    activity.buttons = activity.buttons.filter(x => x.label && x.url);
+    activity.buttons = activity.buttons.filter(x => x && x.label);
     if (activity.buttons.length) {
       Object.assign(activity, {
         metadata: { button_urls: activity.buttons.map(x => x.url) },
