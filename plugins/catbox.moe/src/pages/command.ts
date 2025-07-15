@@ -1,8 +1,8 @@
 import { registerCommand } from "@vendetta/commands";
 import { showToast } from "@vendetta/ui/toasts";
 import { storage } from "@vendetta/plugin";
-import { setCloseDuration } from "./lib/state";
-import { roundDuration } from "./lib/utils";
+import { setCloseDuration } from "../lib/state";
+import { roundDuration } from "../lib/utils";
 
 let unregister: (() => void) | null = null;
 
@@ -34,7 +34,7 @@ export function loadCommand() {
     },
   });
 
-  console.log(`[CatboxUploader] Registered /${commandName} command`);
+  console.log(`[LitterboxUploader] Registered /${commandName} command`);
 }
 
 export function unloadCommand() {

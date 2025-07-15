@@ -1,8 +1,8 @@
 # シグマ siguma's revenge/bunny/kettu plugins.
-A few vendetta plugins have been forked and are being maintained to work with it's successors(bunny/revenge/kettu). Credit goes to the plugin devs for their respective work.
+A few vendetta plugins have been forked and are being maintained to work with it's successors [Revenge](https://github.com/revenge-mod/revenge-bundle),[Kettu](https://github.com/C0C0B01/Kettu)). Credit goes to the plugin devs for their respective work.
 
 # How to install?
-Copy and paste the plugin URL into the Plugins page.
+Copy and paste the plugin URL into your discord clients Plugins page.
 
 # Plugins 
 ## HideBlockedAndIgnoredMessages 
@@ -11,7 +11,7 @@ A plugin that removes the `X blocked or ignored message/s` prompt and replies to
 > https://shipwr3ckd.github.io/revengeplugin/HideBlockedAndIgnoredMessages/
 
 ## CopyBios 
-Copy bio text 
+Copy bio text.
 
 > https://shipwr3ckd.github.io/revengeplugin/CopyBios/
 
@@ -25,3 +25,6 @@ Send messages without notifying the receiver.
 
 > https://shipwr3ckd.github.io/revengeplugin/silentmessages/
 
+## Rich Presence
+Sets Discord Rich Presence for your profile. 
+> https://shipwr3ckd.github.io/revengeplugin/RichPresence/

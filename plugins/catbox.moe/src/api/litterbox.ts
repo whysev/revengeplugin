@@ -7,6 +7,8 @@ const FileManager =
   NativeModules.RTNFileManager ??
   NativeModules.DCDFileManager;
 
+export let LBfilename: string | null = null;
+
 export async function uploadToLitterbox(media: any, duration = "1h"): Promise<string | null> {
   try {
 
@@ -18,6 +20,8 @@ export async function uploadToLitterbox(media: any, duration = "1h"): Promise<st
       media?.sourceURL;
 
     if (!fileUri) throw new Error("Missing file URI");
+    
+    LBfilename = media.filename ?? "upload";
 
     const formData = new FormData();
     formData.append("reqtype", "fileupload");

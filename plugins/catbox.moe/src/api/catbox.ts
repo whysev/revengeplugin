@@ -7,9 +7,10 @@ const FileManager =
   NativeModules.RTNFileManager ??
   NativeModules.DCDFileManager;
 
+export let CBfilename: string | null = null;
+
 export async function uploadToCatbox(media: any): Promise<string | null> {
   try {
-
     const fileUri =
       media?.item?.originalUri ||
       media?.uri ||
@@ -19,6 +20,8 @@ export async function uploadToCatbox(media: any): Promise<string | null> {
 
     if (!fileUri) throw new Error("Missing file URI");
 
+    CBfilename = media.filename ?? "upload";
+
     const userhash = storage.userhash?.trim();
 
     const formData = new FormData();
@@ -27,7 +30,7 @@ export async function uploadToCatbox(media: any): Promise<string | null> {
 
     formData.append("fileToUpload", {
       uri: fileUri,
-      name: media.filename ?? "upload",
+      name: CBfilename,
       type: media.mimeType ?? "application/octet-stream",
     } as any);
 

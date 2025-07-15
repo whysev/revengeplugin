@@ -1,5 +1,3 @@
-import { showToast } from "@vendetta/ui/toasts";
-import { storage } from "@vendetta/plugin";
 import { uploadToCatbox } from "../api/catbox";
 import { uploadToLitterbox } from "../api/litterbox";
 import { getRandomString } from "./utils";
@@ -18,17 +16,20 @@ export function createWarmupFile() {
 
 export function warmUpUploader() {
   setTimeout(async () => {
+    const file = createWarmupFile();
+
     try {
-      const service = storage.useLitterbox ? "Litterbox" : "Catbox";
+      const catboxLink = await uploadToCatbox(file);
+      console.log(`[WarmUp] Catbox upload complete: ${catboxLink}`);
+    } catch (err) {
+      console.warn("[WarmUp] Catbox upload failed:", err);
+    }
 
-      const file = createWarmupFile();
-      const link = storage.useLitterbox
-        ? await uploadToLitterbox(file, "1h")
-        : await uploadToCatbox(file);
-
-      console.log(`[CatboxUploader] Warm-up upload complete: ${link}`);
-    } catch (e) {
-      console.warn("[CatboxUploader] Warm-up upload failed", e);
+    try {
+      const litterboxLink = await uploadToLitterbox(file, "1h");
+      console.log(`[WarmUp] Litterbox upload complete: ${litterboxLink}`);
+    } catch (err) {
+      console.warn("[WarmUp] Litterbox upload failed:", err);
     }
   }, 0);
 }

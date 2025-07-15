@@ -1,6 +1,6 @@
 import { warmUpUploader } from "./lib/warmup";
-import settings from "./settings";
-import { loadCommand, unloadCommand } from "./command";
+import settings from "./pages/settings";
+import { loadCommand, unloadCommand } from "./pages/command";
 
 import { ensureDefaultSettings, patchUploader } from "./handler";
 
