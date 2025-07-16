@@ -172,6 +172,11 @@ export default function Settings() {
             value={settings.buttons?.[0]?.url}
             disabled={!settings.buttons?.[0]?.label}
             onChange={(v) => settings.buttons[0].url = v}
+            helpText={
+              settings.buttons?.[0]?.label && !settings.buttons?.[0]?.url ? (
+                <ReactNative.Text style={{ color: "red" }}>Required if button label is set</ReactNative.Text>
+              ) : undefined
+            }
           />
           <FormInput
             title="Button 2 Label"
@@ -185,6 +190,11 @@ export default function Settings() {
             value={settings.buttons?.[1]?.url}
             disabled={!settings.buttons?.[1]?.label}
             onChange={(v) => settings.buttons[1].url = v}
+            helpText={
+              settings.buttons?.[1]?.label && !settings.buttons?.[1]?.url ? (
+                <ReactNative.Text style={{ color: "red" }}>Required if button label is set</ReactNative.Text>
+              ) : undefined
+            }
           />
         </FormSection>
       </View>
