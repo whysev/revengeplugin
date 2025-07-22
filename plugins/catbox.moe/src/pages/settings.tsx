@@ -39,11 +39,11 @@ export default function Settings() {
             }}
           />
           <TableSwitchRow
-            label="Show result link copy dialog"
-            subLabel="Disable to auto send link to chat"
-            value={!!get("showDialog")}
+            label="Copy link to clipboard"
+            subLabel="Disable to automatically send link to chat"
+            value={!!get("copy")}
             onValueChange={(v) => {
-              set("showDialog", v);
+              set("copy", v);
               update();
             }}
           />
@@ -61,7 +61,7 @@ export default function Settings() {
         <TableRowGroup title="Default File Hoster">
           <TableSwitchRow
             label="Catbox"
-            subLabel="http://catbox.moe/"
+            subLabel="https://catbox.moe/"
             value={selectedHost === "catbox"}
             onValueChange={() => setHost("catbox")}
           />

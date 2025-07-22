@@ -10,13 +10,13 @@ import { uploadToPomf, PomfFilename } from "./api/pomf";
 import { uploadToProxy, ProxyFilename } from "./api/proxy";
 import { getCloseDuration } from "./lib/state";
 
-const Dialog = findByProps("show", "close", "confirm");
 const MessageSender = findByProps("sendMessage");
 const ChannelStore = findByProps("getChannelId");
+const PendingMessages = findByProps("getPendingMessages", "deletePendingMessage");
 
 export function ensureDefaultSettings() {
   if (typeof storage.alwaysUpload !== "boolean") storage.alwaysUpload = false;
-  if (typeof storage.showDialog !== "boolean") storage.showDialog = true;
+  if (typeof storage.copy !== "boolean") storage.copy = true;
   if (typeof storage.useProxy !== "boolean") storage.useProxy = false;
   if (typeof storage.useAnonymousFileName !== "boolean") storage.useAnonymousFileName = false;
   if (typeof storage.proxyBaseUrl !== "string")
@@ -26,6 +26,22 @@ export function ensureDefaultSettings() {
   if (typeof storage.commandName !== "string") storage.commandName = "/litterbox";
   if (!["catbox", "litterbox", "pomf"].includes(storage.selectedHost))
     storage.selectedHost = "catbox";
+}
+
+function cleanup(channelId: string) {
+  try {
+    const pending = PendingMessages?.getPendingMessages?.(channelId);
+    if (!pending) return;
+
+    for (const [messageId, message] of Object.entries(pending)) {
+      if (message.state === "FAILED") {
+        PendingMessages.deletePendingMessage(channelId, messageId);
+        console.log(`[catbox.moe] Deleted failed message: ${messageId}`);
+      }
+    }
+  } catch (err) {
+    console.warn("[catbox.moe] Failed to delete pending messages:", err);
+  }
 }
 
 export function patchUploader(): () => void {
@@ -43,7 +59,7 @@ export function patchUploader(): () => void {
     }
 
     const alwaysUpload = !!storage.alwaysUpload;
-    const showDialog = !!storage.showDialog;
+    const copy = !!storage.copy;
     const useProxy = !!storage.useProxy;
     const useAnonymous = !!storage.useAnonymousFileName;
     const selectedHost = storage.selectedHost || "catbox";
@@ -71,8 +87,8 @@ export function patchUploader(): () => void {
     }
 
     const host = useHost.charAt(0).toUpperCase() + useHost.slice(1);
-const destination = useProxy ? `proxied ${host}` : host;
-showToast(`📤 Uploading ${readableSize} to ${destination}...`);
+    const destination = useProxy ? `proxied ${host}` : host;
+    showToast(`📤 Uploading ${readableSize} to ${destination}...`);
 
     console.log("[Uploader] File size:", readableSize);
     console.log("[Uploader] Upload decision:", {
@@ -85,6 +101,8 @@ showToast(`📤 Uploading ${readableSize} to ${destination}...`);
       duration,
       tooBigForCatbox,
     });
+
+    let channelId = this?.channelId ?? ChannelStore?.getChannelId?.();
 
     try {
       let link: string | null = null;
@@ -124,8 +142,11 @@ showToast(`📤 Uploading ${readableSize} to ${destination}...`);
         this.setStatus("CANCELED");
       }
 
+      if (channelId) {
+        setTimeout(() => cleanup(channelId), 500);
+      }
+
       if (link) {
-        const channelId = this?.channelId ?? ChannelStore?.getChannelId?.();
         let hyperlinkText: string;
 
         if (useAnonymous) {
@@ -137,24 +158,11 @@ showToast(`📤 Uploading ${readableSize} to ${destination}...`);
 
         const content = `[${hyperlinkText}](${link})`;
 
-        if (showDialog) {
-          Dialog.show({
-            title: "Upload Successful",
-            body: content,
-            confirmText: "Copy Link",
-            cancelText: "Close",
-            confirmColor: "brand",
-            onConfirm: () => {
-              ReactNative.Clipboard.setString(link);
-              showToast("Copied to clipboard!");
-              Dialog.close();
-            },
-            onCancel: () => Dialog.close(),
-          });
+        if (copy) {
+          ReactNative.Clipboard.setString(content);
+          showToast("Copied to clipboard!");
         } else if (channelId && MessageSender?.sendMessage) {
-          await MessageSender.sendMessage(channelId, {
-            content,
-          });
+          await MessageSender.sendMessage(channelId, { content });
           showToast("Link sent to chat.");
         } else {
           showToast("Upload succeeded but could not send link.");
@@ -166,6 +174,10 @@ showToast(`📤 Uploading ${readableSize} to ${destination}...`);
     } catch (err) {
       console.error("[Uploader] Upload error:", err);
       showToast("Upload error occurred.");
+
+      if (channelId) {
+        setTimeout(() => deleteFailedMessages(channelId), 500);
+      }
     }
 
     return null;
