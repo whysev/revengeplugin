@@ -71,6 +71,7 @@ export default {
                         content: message.content,
                         edited_timestamp: null,
                     },
+                    otherPluginBypass:true,
                 });
                 return false;
             }
