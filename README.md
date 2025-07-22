@@ -26,5 +26,21 @@ Send messages without notifying the receiver.
 > https://shipwr3ckd.github.io/revengeplugin/silentmessages/
 
 ## Rich Presence
-Sets Discord Rich Presence for your profile. 
+Sets Discord Rich Presence for your profile.
+
 > https://shipwr3ckd.github.io/revengeplugin/RichPresence/
+
+## NSFW Blur
+Blur image previews and disable embed media in NSFW channels.
+
+> https://shipwr3ckd.github.io/revengeplugin/nsfw-blur
+
+## Local Edit
+Edit messages locally.
+
+> https://shipwr3ckd.github.io/revengeplugin/localedit
+
+## AnonymousFileNames
+Randomises file names before you upload them.
+
+> https://shipwr3ckd.github.io/revengeplugin/AnonymousFileNames
