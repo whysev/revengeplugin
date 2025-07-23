@@ -6,42 +6,19 @@ Copy and paste the plugin URL into your discord clients Plugins page.
 
 # Plugins 
 ## HideBlockedAndIgnoredMessages 
-A plugin that removes the `X blocked or ignored message/s` prompt and replies to the blocked or ignored messages from chat (optional in plugin settings).
+A plugin that removes the `X blocked or ignored message/s` prompt and replies to the blocked or ignored messages from chat.
 
 > https://shipwr3ckd.github.io/revengeplugin/HideBlockedAndIgnoredMessages/
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/HideBlockedAndIgnoredMessages.png/" width="300" />
-</details>
-</h3>
 
 ## CopyBios 
 Copy bio text.
 
 > https://shipwr3ckd.github.io/revengeplugin/CopyBios/
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/CopyBios.png/" width="300" />
-  </p>
-</details>
-</h3>
 
 ## catbox.moe
 Upload your silly ahh files larger than 10MBs to catbox.moe.
 
 > https://shipwr3ckd.github.io/revengeplugin/catbox.moe/
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/catbox.moe.gif/" width="300" />
-  </p>
-</details>
-</h3>
 
 ## Silent Messages 
 Send messages without notifying the receiver.
@@ -52,50 +29,18 @@ Send messages without notifying the receiver.
 Sets Discord Rich Presence for your profile.
 
 > https://shipwr3ckd.github.io/revengeplugin/RichPresence/
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/RichPresence.png/" width="300" />
-  </p>
-</details>
-</h3>
 
 ## NSFW Blur
 Blur image previews and disable embed media in NSFW channels.
 
 > https://shipwr3ckd.github.io/revengeplugin/nsfw-blur
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/nsfw-blur.png/" width="300" />
-  </p>
-</details>
-</h3>
 
 ## Local Edit
 Edit messages locally.
 
 > https://shipwr3ckd.github.io/revengeplugin/localedit
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/localedit.gif/" width="300" />
-  </p>
-</details>
-</h3>
 
 ## AnonymousFileNames
 Randomises file names before you upload them.
 
 > https://shipwr3ckd.github.io/revengeplugin/AnonymousFileNames
-<h3>
-<details>
-  <summary>Preview</summary>
-  <p>
-    <img src="./images/AnonymousFileNames.png/" width="300" />
-  </p>
-</details>
-</h3>
