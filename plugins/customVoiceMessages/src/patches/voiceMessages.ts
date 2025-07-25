@@ -21,7 +21,7 @@ export default () => {
                 if (!storage.sendAsVM || upload.flags === 8192) return;
 
                 const item = upload.items?.[0] ?? upload;
-                if (item) {
+                if (item?.mimeType?.startsWith("audio")) {
                     transform(item);
                     upload.flags = 8192; 
                 }
