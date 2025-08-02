@@ -1,13 +1,3 @@
-import { ReactNative } from "@vendetta/metro/common";
-
-const { NativeModules } = ReactNative;
-const FileManager =
-  NativeModules.NativeFileModule ??
-  NativeModules.RTNFileManager ??
-  NativeModules.DCDFileManager;
-
-export let PomfFilename: string | null = null;
-
 export async function uploadToPomf(media: any): Promise<string | null> {
   try {
     const fileUri =
@@ -19,22 +9,21 @@ export async function uploadToPomf(media: any): Promise<string | null> {
 
     if (!fileUri) throw new Error("Missing file URI");
 
-    PomfFilename = media.filename ?? "upload";
+    const filename = media.filename ?? "upload";
 
     const formData = new FormData();
     formData.append("files[]", {
       uri: fileUri,
-      name: PomfFilename,
+      name: filename,
       type: media.mimeType ?? "application/octet-stream",
     } as any);
 
-    const uploadRes = await fetch("https://pomf.lain.la/upload.php", {
+    const response = await fetch("https://pomf.lain.la/upload.php", {
       method: "POST",
       body: formData,
     });
 
-    const json = await uploadRes.json();
-    console.log("[PomfUploader] Raw response:", json);
+    const json = await response.json();
 
     if (!json?.success) {
       throw new Error(json?.error ?? "Unknown error");

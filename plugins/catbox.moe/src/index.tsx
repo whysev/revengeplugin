@@ -2,7 +2,11 @@ import { warmUpUploader } from "./lib/warmup";
 import settings from "./pages/settings";
 import { loadCommand, unloadCommand } from "./pages/command";
 
-import { ensureDefaultSettings, patchUploader } from "./handler";
+import {
+  ensureDefaultSettings,
+  patchUploader,
+  patchMessageSender,
+} from "./handler";
 
 let unpatches: (() => void)[] = [];
 
@@ -12,16 +16,17 @@ export default {
     loadCommand();
 
     unpatches.push(patchUploader());
+    unpatches.push(patchMessageSender());
 
     warmUpUploader();
-    console.log("[CatboxUploader] Plugin loaded.");
+    console.log("[catbox.moe] Plugin loaded.");
     this.settings = settings;
   },
 
   onUnload() {
     unloadCommand();
     unpatches.forEach((u) => u());
-    console.log("[CatboxUploader] Plugin unloaded.");
+    console.log("[catbox.moe] Plugin unloaded.");
   },
 
   settings,

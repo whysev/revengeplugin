@@ -48,11 +48,11 @@ export default function Settings() {
             }}
           />
           <TableSwitchRow
-            label="AnonymousFileNames"
-            subLabel="Disable to use actual file name for hyperlinking"
-            value={!!get("useAnonymousFileName")}
+            label="Insert into the message"
+            subLabel="Directly inserts the link at the end of the next message"
+            value={!!get("insert")}
             onValueChange={(v) => {
-              set("useAnonymousFileName", v);
+              set("insert", v);
               update();
             }}
           />
@@ -116,6 +116,14 @@ export default function Settings() {
               update();
             }}
           />
+          <TableSwitchRow
+            label="Reverse proxied link"
+            value={!!get("revProxy")}
+            onValueChange={(v) => {
+              set("revProxy", v);
+              update();
+            }}
+          />
         </TableRowGroup>
 
         <TableRowGroup title="Proxy Base URL">
@@ -124,7 +132,8 @@ export default function Settings() {
               placeholder="https://your-proxy.com"
               value={get("proxyBaseUrl")}
               onChange={(v) => {
-                set("proxyBaseUrl", v);
+                const cleaned = v.replace(/\/+$/, "");
+                set("proxyBaseUrl", cleaned);
                 update();
               }}
               isClearable

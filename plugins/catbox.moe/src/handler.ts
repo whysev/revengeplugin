@@ -1,15 +1,17 @@
+import { before } from "@vendetta/patcher";
 import { ReactNative } from "@vendetta/metro/common";
 import { showToast } from "@vendetta/ui/toasts";
 import { storage } from "@vendetta/plugin";
 import { findByProps } from "@vendetta/metro";
 
-import { formatBytes, roundDuration, getRandomString } from "./lib/utils";
-import { uploadToCatbox, CBfilename } from "./api/catbox";
-import { uploadToLitterbox, LBfilename } from "./api/litterbox";
-import { uploadToPomf, PomfFilename } from "./api/pomf";
-import { uploadToProxy, ProxyFilename } from "./api/proxy";
+import { formatBytes, roundDuration } from "./lib/utils";
+import { uploadToCatbox } from "./api/catbox";
+import { uploadToLitterbox } from "./api/litterbox";
+import { uploadToPomf } from "./api/pomf";
+import { uploadToProxy } from "./api/proxy";
 import { getCloseDuration } from "./lib/state";
 
+const CloudUpload = findByProps("CloudUpload")?.CloudUpload;
 const MessageSender = findByProps("sendMessage");
 const ChannelStore = findByProps("getChannelId");
 const PendingMessages = findByProps("getPendingMessages", "deletePendingMessage");
@@ -18,7 +20,6 @@ export function ensureDefaultSettings() {
   if (typeof storage.alwaysUpload !== "boolean") storage.alwaysUpload = false;
   if (typeof storage.copy !== "boolean") storage.copy = true;
   if (typeof storage.useProxy !== "boolean") storage.useProxy = false;
-  if (typeof storage.useAnonymousFileName !== "boolean") storage.useAnonymousFileName = false;
   if (typeof storage.proxyBaseUrl !== "string")
     storage.proxyBaseUrl = "https://fatboxog.onrender.com";
   if (typeof storage.defaultDuration !== "string" || !/^\d+$/.test(storage.defaultDuration))
@@ -26,6 +27,7 @@ export function ensureDefaultSettings() {
   if (typeof storage.commandName !== "string") storage.commandName = "/litterbox";
   if (!["catbox", "litterbox", "pomf"].includes(storage.selectedHost))
     storage.selectedHost = "catbox";
+  if (typeof storage.insert !== "boolean") storage.insert = false;
 }
 
 function cleanup(channelId: string) {
@@ -44,8 +46,22 @@ function cleanup(channelId: string) {
   }
 }
 
+let storeLink: string | null = null;
+
+export function patchMessageSender(): () => void {
+  return before("sendMessage", MessageSender, (args) => {
+    const message = args[1];
+
+    if (storage.insert && storeLink && message?.content) {
+      message.content = `${message.content}\n${storeLink}`;
+      storeLink = null;
+    }
+
+    return args;
+  });
+}
+
 export function patchUploader(): () => void {
-  const CloudUpload = findByProps("CloudUpload")?.CloudUpload;
   const originalUpload = CloudUpload.prototype.reactNativeCompressAndExtractData;
 
   CloudUpload.prototype.reactNativeCompressAndExtractData = async function (...args: any[]) {
@@ -59,13 +75,16 @@ export function patchUploader(): () => void {
     }
 
     const alwaysUpload = !!storage.alwaysUpload;
+    const insert = !!storage.insert;
     const copy = !!storage.copy;
     const useProxy = !!storage.useProxy;
-    const useAnonymous = !!storage.useAnonymousFileName;
+    const revProxy = !!storage.revProxy;
     const selectedHost = storage.selectedHost || "catbox";
 
     const shouldUpload = alwaysUpload || size > 10 * 1024 * 1024;
     if (!shouldUpload) return originalUpload.apply(this, args);
+    
+    this.preCompressionSize = 1337; // unfinished
 
     let slashDuration = getCloseDuration();
     const commandTriggered = slashDuration !== null;
@@ -90,82 +109,53 @@ export function patchUploader(): () => void {
     const destination = useProxy ? `proxied ${host}` : host;
     showToast(`📤 Uploading ${readableSize} to ${destination}...`);
 
-    console.log("[Uploader] File size:", readableSize);
-    console.log("[Uploader] Upload decision:", {
-      alwaysUpload,
-      selectedHost,
-      useProxy,
-      useAnonymous,
-      commandTriggered,
-      useHost,
-      duration,
-      tooBigForCatbox,
-    });
-
     let channelId = this?.channelId ?? ChannelStore?.getChannelId?.();
 
     try {
       let link: string | null = null;
-      let filename: string | null = null;
 
       if (useProxy) {
-        const uploadId = Math.random().toString(36).slice(2, 10);
         const proxyBaseUrl = storage.proxyBaseUrl?.trim() || "";
-
         link = await uploadToProxy(file, {
-          uploadId,
           filename: file?.filename ?? "upload",
           proxyBaseUrl,
           userhash: storage.userhash,
           destination: useHost,
           duration,
+          revProxy : storage.revProxy,
         });
-
-        filename = ProxyFilename ?? "file";
       } else {
         switch (useHost) {
           case "litterbox":
             link = await uploadToLitterbox(file, duration);
-            filename = LBfilename;
             break;
           case "pomf":
             link = await uploadToPomf(file);
-            filename = PomfFilename;
             break;
           default:
             link = await uploadToCatbox(file);
-            filename = CBfilename;
         }
       }
 
-      if (typeof this.setStatus === "function") {
-        this.setStatus("CANCELED");
-      }
-
-      if (channelId) {
-        setTimeout(() => cleanup(channelId), 500);
-      }
+      if (typeof this.setStatus === "function") this.setStatus("CANCELED");
+      if (channelId) setTimeout(() => cleanup(channelId), 500);
 
       if (link) {
-        let hyperlinkText: string;
+        const content = `[${file?.filename ?? "file"}](${link})`;
 
-        if (useAnonymous) {
-          const ext = (filename?.split(".").pop() ?? "bin").toLowerCase();
-          hyperlinkText = `${getRandomString()}.${ext}`;
+        if (insert) {
+          storeLink = content;
+          showToast("Link will be inserted to your next message.");
         } else {
-          hyperlinkText = filename ?? "file";
-        }
-
-        const content = `[${hyperlinkText}](${link})`;
-
-        if (copy) {
-          ReactNative.Clipboard.setString(content);
-          showToast("Copied to clipboard!");
-        } else if (channelId && MessageSender?.sendMessage) {
-          await MessageSender.sendMessage(channelId, { content });
-          showToast("Link sent to chat.");
-        } else {
-          showToast("Upload succeeded but could not send link.");
+          if (copy) {
+            ReactNative.Clipboard.setString(content);
+            showToast("Copied to clipboard!");
+          } else if (channelId && MessageSender?.sendMessage) {
+            await MessageSender.sendMessage(channelId, { content });
+            showToast("Link sent to chat.");
+          } else {
+            showToast("Upload succeeded but could not send link.");
+          }
         }
       } else {
         console.warn("[Uploader] Upload failed, no link returned.");
@@ -174,10 +164,7 @@ export function patchUploader(): () => void {
     } catch (err) {
       console.error("[Uploader] Upload error:", err);
       showToast("Upload error occurred.");
-
-      if (channelId) {
-        setTimeout(() => deleteFailedMessages(channelId), 500);
-      }
+      if (channelId) setTimeout(() => cleanup(channelId), 500);
     }
 
     return null;

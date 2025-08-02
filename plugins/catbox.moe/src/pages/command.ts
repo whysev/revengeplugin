@@ -34,7 +34,7 @@ export function loadCommand() {
     },
   });
 
-  console.log(`[LitterboxUploader] Registered /${commandName} command`);
+  console.log(`[catbox.moe] Registered /${commandName} command`);
 }
 
 export function unloadCommand() {

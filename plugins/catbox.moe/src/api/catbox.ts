@@ -1,13 +1,4 @@
-import { ReactNative } from "@vendetta/metro/common";
 import { storage } from "@vendetta/plugin";
-
-const { NativeModules } = ReactNative;
-const FileManager =
-  NativeModules.NativeFileModule ??
-  NativeModules.RTNFileManager ??
-  NativeModules.DCDFileManager;
-
-export let CBfilename: string | null = null;
 
 export async function uploadToCatbox(media: any): Promise<string | null> {
   try {
@@ -20,28 +11,24 @@ export async function uploadToCatbox(media: any): Promise<string | null> {
 
     if (!fileUri) throw new Error("Missing file URI");
 
-    CBfilename = media.filename ?? "upload";
-
+    const filename = media.filename ?? "upload";
     const userhash = storage.userhash?.trim();
 
     const formData = new FormData();
     formData.append("reqtype", "fileupload");
     if (userhash) formData.append("userhash", userhash);
-
     formData.append("fileToUpload", {
       uri: fileUri,
-      name: CBfilename,
+      name: filename,
       type: media.mimeType ?? "application/octet-stream",
     } as any);
 
-    const uploadRes = await fetch("https://catbox.moe/user/api.php", {
+    const response = await fetch("https://catbox.moe/user/api.php", {
       method: "POST",
       body: formData,
     });
 
-    const text = await uploadRes.text();
-    console.log("[CatboxUploader] Raw response:", text);
-
+    const text = await response.text();
     if (!text.startsWith("https://")) throw new Error(text);
     return text;
   } catch (err) {

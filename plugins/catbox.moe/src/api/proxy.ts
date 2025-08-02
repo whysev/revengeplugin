@@ -1,22 +1,16 @@
-import { ReactNative } from "@vendetta/metro/common";
-
-const { NativeModules } = ReactNative;
-const FileManager =
-  NativeModules.NativeFileModule ??
-  NativeModules.RTNFileManager ??
-  NativeModules.DCDFileManager;
-
-export let ProxyFilename: string | null = null;
+import { getRandomString } from "../lib/utils";
+import settings from "../pages/settings";
 
 export async function uploadToProxy(
   media: any,
   {
-    uploadId,
+    uploadId = getRandomString(8),
     filename,
     proxyBaseUrl,
     userhash,
     destination,
     duration = "1h",
+    revProxy = settings.revProxy,
   }: {
     uploadId: string;
     filename: string;
@@ -24,6 +18,7 @@ export async function uploadToProxy(
     userhash?: string;
     destination: "catbox" | "litterbox" | "pomf";
     duration?: string;
+    revProxy?: string;
   }
 ): Promise<string | null> {
   try {
@@ -35,7 +30,6 @@ export async function uploadToProxy(
       media?.sourceURL;
 
     if (!fileUri) throw new Error("Missing file URI");
-    ProxyFilename = filename;
 
     const formData = new FormData();
     formData.append("destination", destination);
@@ -54,15 +48,20 @@ export async function uploadToProxy(
     });
 
     const json = await response.json();
-    console.log("[ProxyUploader] Response:", json);
+    if (!response.ok || !json?.url) throw new Error(json?.error ?? "Unknown upload error");
 
-    if (!response.ok || !json?.url) {
-      throw new Error(json?.error ?? "Unknown upload error");
+    if (revProxy) {
+      try {
+        const original = new URL(json.url);
+        const fname = original.pathname.split("/").pop();
+        return `${proxyBaseUrl}/${destination}/${fname}`;
+      } catch {
+        return json.url;
+      }
     }
 
     return json.url;
-  } catch (err) {
-    console.error("[ProxyUploader] Upload error:", err);
+  } catch {
     return null;
   }
 }
