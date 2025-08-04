@@ -20,13 +20,10 @@ export function ensureDefaultSettings() {
   if (typeof storage.alwaysUpload !== "boolean") storage.alwaysUpload = false;
   if (typeof storage.copy !== "boolean") storage.copy = true;
   if (typeof storage.useProxy !== "boolean") storage.useProxy = false;
-  if (typeof storage.proxyBaseUrl !== "string")
-    storage.proxyBaseUrl = "https://fatboxog.onrender.com";
-  if (typeof storage.defaultDuration !== "string" || !/^\d+$/.test(storage.defaultDuration))
-    storage.defaultDuration = "1";
+  if (typeof storage.proxyBaseUrl !== "string") storage.proxyBaseUrl = "https://fatboxog.onrender.com";
+  if (typeof storage.defaultDuration !== "string" || !/^\d+$/.test(storage.defaultDuration)) storage.defaultDuration = "1";
   if (typeof storage.commandName !== "string") storage.commandName = "/litterbox";
-  if (!["catbox", "litterbox", "pomf"].includes(storage.selectedHost))
-    storage.selectedHost = "catbox";
+  if (!["catbox", "litterbox", "pomf"].includes(storage.selectedHost)) storage.selectedHost = "catbox";
   if (typeof storage.insert !== "boolean") storage.insert = false;
 }
 
@@ -83,7 +80,7 @@ export function patchUploader(): () => void {
 
     const shouldUpload = alwaysUpload || size > 10 * 1024 * 1024;
     if (!shouldUpload) return originalUpload.apply(this, args);
-    
+
     this.preCompressionSize = 1337; // unfinished
 
     let slashDuration = getCloseDuration();
@@ -122,7 +119,7 @@ export function patchUploader(): () => void {
           userhash: storage.userhash,
           destination: useHost,
           duration,
-          revProxy : storage.revProxy,
+          revProxy: storage.revProxy,
         });
       } else {
         switch (useHost) {
@@ -146,16 +143,16 @@ export function patchUploader(): () => void {
         if (insert) {
           storeLink = content;
           showToast("Link will be inserted to your next message.");
-        } else {
-          if (copy) {
-            ReactNative.Clipboard.setString(content);
-            showToast("Copied to clipboard!");
-          } else if (channelId && MessageSender?.sendMessage) {
-            await MessageSender.sendMessage(channelId, { content });
-            showToast("Link sent to chat.");
-          } else {
-            showToast("Upload succeeded but could not send link.");
-          }
+        }
+
+        if (copy) {
+          ReactNative.Clipboard.setString(content);
+          showToast("Copied to clipboard!");
+        } else if (!insert && channelId && MessageSender?.sendMessage) {
+          await MessageSender.sendMessage(channelId, { content });
+          showToast("Link sent to chat.");
+        } else if (!insert) {
+          showToast("Upload succeeded but could not send link.");
         }
       } else {
         console.warn("[Uploader] Upload failed, no link returned.");
