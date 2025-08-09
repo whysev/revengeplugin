@@ -11,7 +11,7 @@ const GuildMemberStore = findByStoreName("GuildMemberStore")
 
 export const BUILT_IN_TAGS = [
     i18n.Messages.AI_TAG,
-    //Messages.BOT_TAG_BOT, This is done in our own tags as webhooks use this
+    i18n.Messages.BOT_TAG_BOT,
     i18n.Messages.BOT_TAG_SERVER,
     i18n.Messages.SYSTEM_DM_TAG_SYSTEM,
     i18n.Messages.GUILD_AUTOMOD_USER_BADGE_TEXT,
@@ -37,11 +37,6 @@ const tags: Tag[] = [
         text: "OWNER",
         backgroundColor: rawColors.ORANGE_345,
         condition: (guild, channel, user) => guild?.ownerId === user.id
-    },
-    {
-        text: i18n.Messages.BOT_TAG_BOT,
-        condition: (guild, channel, user) => user.bot,
-        verified: (guild, channel, user) => user.isVerifiedBot()
     },
     {
         text: "ADMIN",
@@ -76,7 +71,7 @@ export default function getTag(guild, channel, user) {
 
     for (const tag of tags) {
         if (tag.condition?.(guild, channel, user) ||
-            tag.permissions?.some(perm => permissions?.includes(perm))) {
+            (!user.bot && tag.permissions?.some(perm => permissions?.includes(perm)))) {
 
             let roleColor = storage.useRoleColor ? GuildMemberStore.getMember(guild?.id, user.id)?.colorString : undefined
             let backgroundColor = roleColor ? roleColor : tag.backgroundColor ?? rawColors.BRAND_500
