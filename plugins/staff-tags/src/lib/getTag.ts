@@ -32,26 +32,35 @@ const tags: Tag[] = [
         text: "WEBHOOK",
         condition: (guild, channel, user) => user.isNonUserBot()
     },
-
     {
         text: "OWNER",
-        backgroundColor: rawColors.ORANGE_345,
+        //backgroundColor: rawColors.ORANGE_345,
         condition: (guild, channel, user) => guild?.ownerId === user.id
     },
     {
         text: "ADMIN",
-        backgroundColor: rawColors.RED_560,
+        //backgroundColor: rawColors.RED_560,
         permissions: ["ADMINISTRATOR"]
     },
     {
-        text: "MANAGER",
-        backgroundColor: rawColors.GREEN_345,
+        text: "STAFF",
+        llbackgroundColor: rawColors.GREEN_345,
         permissions: ["MANAGE_GUILD", "MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_WEBHOOKS"]
     },
     {
         text: "MOD",
-        backgroundColor: rawColors.BLUE_345,
+        //backgroundColor: rawColors.BLUE_345,
         permissions: ["MANAGE_MESSAGES", "KICK_MEMBERS", "BAN_MEMBERS"]
+    },
+    {
+        text: "VC Mod",
+        //backgroundColor: "#059669#",
+        permissions: ["MOVE_MEMBERS", "MUTE_MEMBERS", "DEAFEN_MEMBERS"]
+    },
+    {
+        text: "Chat Mod",
+        //backgroundColor: "#7C3AED",
+        permissions: ["MODERATE_MEMBERS"]
     }
 ]
 
