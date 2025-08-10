@@ -44,7 +44,7 @@ const tags: Tag[] = [
     },
     {
         text: "STAFF",
-        llbackgroundColor: rawColors.GREEN_345,
+        //backgroundColor: rawColors.GREEN_345,
         permissions: ["MANAGE_GUILD", "MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_WEBHOOKS"]
     },
     {
