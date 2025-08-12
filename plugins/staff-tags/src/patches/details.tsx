@@ -7,23 +7,29 @@ const TagModule = findByProps("getBotLabel");
 const getBotLabel = TagModule?.getBotLabel;
 const GuildStore = findByStoreName("GuildStore");
 
-const rowPatch = ([{ guildId, user }], ret) => {
-    const label = ret?.props?.label;
-    const tagComponent = findInReactTree(label, (c) => c?.type?.Types);
+const rowPatch = ([{ guildId, user }], res) => {
+    const label = res?.props?.label;
+    const nameContainer = findInReactTree(
+        label,
+        (c) =>
+            Array.isArray(c?.props?.children) &&
+            c.props.children.some(
+                (ch) => typeof ch === "string" || typeof ch?.props?.children === "string"
+            )
+    );
 
-    if (tagComponent) {
-        const labelText = getBotLabel?.(tagComponent.props.type);
-        if (BUILT_IN_TAGS.includes(labelText)) {
-            return;
-        }
+    const existingTag = findInReactTree(nameContainer, (c) => c?.type?.Types);
+    if (existingTag) {
+        const labelText = getBotLabel?.(existingTag.props.type);
+        if (BUILT_IN_TAGS.includes(labelText)) return;
     }
 
     const guild = GuildStore.getGuild(guildId);
     const tag = getTag(guild, undefined, user);
 
     if (tag) {
-        if (tagComponent) {
-            Object.assign(tagComponent.props, {
+        if (existingTag) {
+            Object.assign(existingTag.props, {
                 type: 0,
                 text: tag.text,
                 textColor: tag.textColor,
@@ -31,20 +37,18 @@ const rowPatch = ([{ guildId, user }], ret) => {
                 verified: tag.verified,
             });
         } else {
-            const children = label.props?.children;
-            if (children) {
-                children.splice(
-                    1,
-                    0,
-                    <TagModule.default
-                        type={0}
-                        text={tag.text}
-                        textColor={tag.textColor}
-                        backgroundColor={tag.backgroundColor}
-                        verified={tag.verified}
-                    />
-                );
+            if (!Array.isArray(nameContainer.props.children)) {
+                nameContainer.props.children = [nameContainer.props.children];
             }
+            nameContainer.props.children.push(
+                <TagModule.default
+                    type={0}
+                    text={tag.text}
+                    textColor={tag.textColor}
+                    backgroundColor={tag.backgroundColor}
+                    verified={tag.verified}
+                />
+            );
         }
     }
 };
